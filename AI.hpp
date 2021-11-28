@@ -1,5 +1,6 @@
 #ifndef AI_HPP
 #define AI_HPP
+#include <omp.h>
 #include "game.hpp"
 #include <string>
 #include "tree.hpp"
@@ -474,19 +475,25 @@ class AI{
             return res;
         }
 
-        void GetChose(Field& f, int &x, int &y){
+        void GetChose(Field& f, int &x, int &y, int px, int py){
             int len = f.GetLen();
             /*std::vector<std::vector<int> > scores;
             for(int i = 0; i < len; i++){
                 scores.push_back(std::vector<int> (len, 0));
             }*/
             int bestscore = - 1000000; // -max
-            int depth = 1; // depth search
+            int depth = 5; // depth search
+            //#pragma omp parralel for
             for(int i = 0; i < len; i++){
                 for(int j = 0; j < len; j++){
                     if(f.Get(i,j) == ' '){
                         f.Set(i,j, 'X');
-                        int score = minmax(f, depth, false);
+                        int score = 0;
+                        //#pragma omp parallel
+                        //#pragma omp shared(tree_solve)
+                        {
+                            score = minmax(f, depth, false);
+                        }
                         f.Set(i,j, ' ');
                         if(bestscore < score){
                             x = i;
@@ -498,7 +505,7 @@ class AI{
             }
 
         }
-
+        //#pragma omp parallel
         int minmax(Field& f, int depth, bool chosen){
             if(depth < 0){
                 return 0;
@@ -506,6 +513,7 @@ class AI{
             int bestscore = 0;
             int len = f.GetLen();
             if(chosen){
+                //#pragma omp parralel for
                 for(int i = 0; i < len; i++){
                     for(int j = 0; j < len; j++){
                         if(f.Get(i,j) == ' '){
@@ -603,6 +611,7 @@ class AI{
                     }
                 }
             } else {
+                //#pragma omp parralel for
                 for(int i = 0; i < len; i++){
                     for(int j = 0; j < len; j++){
                         if(f.Get(i,j) == ' '){

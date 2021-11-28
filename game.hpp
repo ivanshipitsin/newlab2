@@ -383,7 +383,7 @@ class GameAI {
                             }
                             if(!playsh && !gameover){
                                 int px = 0, py = 0;
-                                aiplayer.GetChose(f, px , py);
+                                aiplayer.GetChose(f, px , py, x/step - 1, y/step - 1);
                                 f.Set(px, py, 'X');
                                 sf::CircleShape  answ(step/2.f, 3);
                                 answ.setFillColor(sf::Color(0, 100, 50));
