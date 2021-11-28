@@ -49,242 +49,410 @@ class AI{
         }
 
         void TreeGeneration(){
-            for(int p = 0; p < 6561; p++){
-                int score = 0;
-                std::string str = genStr(p, 8);
-                str.insert(4 , 1, 'X');
-                int k1 = str.find('O');
-                int k2 = str.find('O', std::max(4, k1 + 1));
-                if(k1 != std::string::npos && k2 != std::string::npos && k1 < 4  && (k2 - k1) <= 5){
-                    score += 5; // first coeff
-                }
-                int OOOO = str.find("OOOO");
-                if(OOOO != std::string::npos){
-                    score += 50000;
-                } else {
-                    int OOO = str.find("OOO");
-                    int OOO1 = str.find("OOO", 4);
-                    if(OOO != std::string::npos){
-                        if(OOO == 1 || OOO == 5){
-                            score += 500; // second coeff
-                        }else{ 
-                            score += 100;
-                        }
-                    }
-                }
-                int k3 = str.find("XXXXX");
-                if(k3 != std::string::npos){
-                    score += 1000000;
-                } else {
-                    int k4 = str.find("XXXX");
-                    if(k4 != std::string::npos){
-                        if(k1 == std::string::npos || k2 == std::string::npos || k1 > 4 || (k2 - k1 > 5))
-                            score += 10000;
-                        else 
-                            score += 1000;
-                    } else {
-                        int k5 = str.find("XXX");
-                        if(k5 != std::string::npos){
-                            if(k5 == 0 && k1 != std::string::npos && k1 != 3){
-                                score += 5000;
-                            }else if((k1 != std::string::npos && k2 != std::string::npos) && (k2 - k1) <= 5){
-                                score += 5000;
-                            }
-                        }
-                    }
-                }
-
-                tree_solve.addNode(str, score);
-            }
-            for(int p = 0; p < 6561; p++){
-                int score = 0;
-                std::string str = genStr(p, 8);
-                str.insert(4 , 1, 'O');
-                int k1 = str.find('X');
-                int k2 = str.find('X', k1 + 1);
-                if(k1 < 4 && k2>4 && (k2 - k1) <= 5){
-                    score += -1; // first coeff
-                }
-                int XXX = str.find("XXX");
-                if(XXX + 1 == 4 || XXX - 1 == 4 ){
-                    score += -20; // second coeff
-                }
-
-                tree_solve.addNode(str, score);
-            }
-            for(int p = 0; p < 2187; p++){
-                int score = 0;
-                std::string str = genStr(p, 8);
-                str.insert(4 , 1, 'O');
-                int k1 = str.find('X');
-                int k2 = str.find('X', k1 + 1);
-                if(k1 < 4 && k2>4 && (k2 - k1) <= 5){
-                    score += -1; // first coeff
-                }
-                int XXX = str.find("XXX");
-                if(XXX + 1 == 4 || XXX - 1 == 4 ){
-                    score += -20; // second coeff
-                }
-
-                tree_solve.addNode(str, score);
-            }
-            for(int p = 0; p < 2187; p++){
-                int score = 0;
-                std::string str = genStr(p, 7);
-                str.insert(4 , 1, 'O');
-                int k1 = str.find('X');
-                int k2 = str.find('X', k1 + 1);
-                if(k1 < 4 && k2>4 && (k2 - k1) <= 5){
-                    score += -1; // first coeff
-                }
-                int XXX = str.find("XXX");
-                if(XXX + 1 == 4 || XXX - 1 == 4 ){
-                    score += -20; // second coeff
-                }
-
-                tree_solve.addNode(str, score);
-            }
-            for(int p = 0; p < 729; p++){
-                int score = 0;
-                std::string str = genStr(p, 6);
-                str.insert(4 , 1, 'O');
-                int k1 = str.find('X');
-                int k2 = str.find('X', k1 + 1);
-                if(k1 < 4 && k2>4 && (k2 - k1) <= 5){
-                    score += -1; // first coeff
-                }
-                int XXX = str.find("XXX");
-                if(XXX + 1 == 4 || XXX - 1 == 4 ){
-                    score += -20; // second coeff
-                }
-
-                tree_solve.addNode(str, score);
-            }
-            for(int p = 0; p < 729; p++){
-                int score = 0;
-                std::string str = genStr(p, 6);
-                str.insert(4 , 1, 'O');
-                int k1 = str.find('X');
-                int k2 = str.find('X', k1 + 1);
-                if(k1 < 4 && k2>4 && (k2 - k1) <= 5){
-                    score += -1; // first coeff
-                }
-                int XXX = str.find("XXX");
-                if(XXX + 1 == 4 || XXX - 1 == 4 ){
-                    score += -20; // second coeff
-                }
-
-                tree_solve.addNode(str, score);
-            }
-            for(int p = 0; p < 243; p++){
-                int score = 0;
-                std::string str = genStr(p, 5);
-                str.insert(4 , 1, 'O');
-                int k1 = str.find('X');
-                int k2 = str.find('X', k1 + 1);
-                if(k1 < 4 && k2>4 && (k2 - k1) <= 5){
-                    score += -1; // first coeff
-                }
-                int XXX = str.find("XXX");
-                if(XXX + 1 == 4 || XXX - 1 == 4 ){
-                    score += -20; // second coeff
-                }
-
-                tree_solve.addNode(str, score);
-            }
-            for(int p = 0; p < 243; p++){
-                int score = 0;
-                std::string str = genStr(p, 5);
-                str.insert(4 , 1, 'O');
-                int k1 = str.find('X');
-                int k2 = str.find('X', k1 + 1);
-                if(k1 < 4 && k2>4 && (k2 - k1) <= 5){
-                    score += -1; // first coeff
-                }
-                int XXX = str.find("XXX");
-                if(XXX + 1 == 4 || XXX - 1 == 4 ){
-                    score += -20; // second coeff
-                }
-
-                tree_solve.addNode(str, score);
-            }
-            for(int p = 0; p < 81; p++){
-                int score = 0;
-                std::string str = genStr(p, 4);
-                str.insert(4 , 1, 'X');
-                int k1 = str.find('O');
-                if(k1 != std::string::npos){
-                    score += 1; // first coeff
-                } else {
-                    int XXXXX = str.find("XXXXX");
-                    if(XXXXX != std::string::npos){
-                        score += 100000;
-                    }else {
-                        int XXXX = str.find("XXXX");
-                        if(XXXX != std::string::npos){
-                            score += 10;
-                        }else{
-                            int XXX = str.find("XXX");
-                            if(XXX != std::string::npos){
-                                score += 5;
-                            }else {
-                                int XX = str.find("XX");
-                                if(XX != std::string::npos){
-
-                                }
-                            }
-                        }
-                    }
-                }
-                int OOOO = str.find("OOOO");
-                if(OOOO!=std::string::npos){
-                    score += 100;
-                } else {
-                    int OOO = str.find("OOO");
-                    if(OOO != std::string::npos){
-                        score += 80;
-                    }
-                }
-                
-
-                tree_solve.addNode(str, score);
-            }
-            for(int p = 0; p < 81; p++){
-                int score = 0;
-                std::string str = genStr(p, 4);
-                str.insert(4 , 1, 'O');
-                int k1 = str.find('X');
-                int k2 = str.find('X', k1 + 1);
-                if(k1 < 4 && k2>4 && (k2 - k1) <= 5){
-                    score += -1; // first coeff
-                }
-                int XXX = str.find("XXX");
-                if(XXX + 1 == 4 || XXX - 1 == 4 ){
-                    score += -20; // second coeff
-                }
-
-                tree_solve.addNode(str, score);
-            }
-            for(int p = 1; p < 81; p++){
-                int score = 0;
-                std::string str = genStr(p, 4);
-                tree_solve.addNode(str, 0);
-            }
-            for(int p = 1; p < 27; p++){
-                int score = 0;
-                std::string str = genStr(p, 3);
-                tree_solve.addNode(str, 0);
-            }
-            for(int p = 1; p < 9; p++){
-                int score = 0;
-                std::string str = genStr(p, 2);
-                tree_solve.addNode(str, 0);
-            }
-            for(int p = 1; p < 3; p++){
-                int score = 0;
+            for(int p = 0; p < 3; p++){
                 std::string str = genStr(p, 1);
                 tree_solve.addNode(str, 0);
             }
+
+            for(int p = 0; p < 9; p++){
+                std::string str = genStr(p, 2);
+                tree_solve.addNode(str, 0);
+            }
+
+            for(int p = 0; p < 27; p++){
+                std::string str = genStr(p, 3);
+                tree_solve.addNode(str, 0);
+            }
+
+            for(int p = 0; p < 81; p++){
+                std::string str = genStr(p, 4);
+                tree_solve.addNode(str, 0);
+            }
+
+            for(int p = 1; p < 243; p++){
+                int score = 0;
+                std::string str = genStr(p, 5);
+                if(str.find(' ') == std::string::npos){
+                    if(str == "OOOOO"){
+                        tree_solve.addNode(str, -10000);
+                        continue;
+                    }
+                    if(str == "XXXXX"){
+                        tree_solve.addNode(str, 10000);
+                        continue;
+                    }
+                    tree_solve.addNode(str, 0);
+                    continue;
+                }
+                if(str.find('O') != std::string::npos && str.find('X') != std::string::npos){
+                    tree_solve.addNode(str, 0);
+                    continue;
+                }
+                if(std::count(str.begin(),str.end(), 'O') == 4){
+                    tree_solve.addNode(str, -5000);
+                    continue;
+                } else if(std::count(str.begin(),str.end(), 'O') == 3){
+                    tree_solve.addNode(str, -1000);
+                    continue;
+                } else if(std::count(str.begin(),str.end(), 'O') == 2){
+                    tree_solve.addNode(str, -500);
+                    continue;
+                } else if(std::count(str.begin(),str.end(), 'O') == 1){
+                    tree_solve.addNode(str, -5);
+                    continue;
+                }
+
+                if(std::count(str.begin(),str.end(), 'X') == 4){
+                    tree_solve.addNode(str, 5000);
+                    continue;
+                } else if(std::count(str.begin(),str.end(), 'X') == 3){
+                    tree_solve.addNode(str, 1000);
+                    continue;
+                } else if(std::count(str.begin(),str.end(), 'X') == 2){
+                    tree_solve.addNode(str, 500);
+                    continue;
+                } else if(std::count(str.begin(),str.end(), 'X') == 1){
+                    tree_solve.addNode(str, 5);
+                    continue;
+                }
+            }
+            tree_solve.addNode("     ", 0);
+            
+            for(int p = 0; p < 729; p++){
+                std::string str = genStr(p, 6);
+                if(str.find(' ') == std::string::npos){
+                    if(str.find("OOOOO") != std::string::npos){
+                        tree_solve.addNode(str, -10000);
+                        continue;
+                    }
+                    if(str.find("XXXXX") != std::string::npos){
+                        tree_solve.addNode(str, 10000);
+                        continue;
+                    }
+                    tree_solve.addNode(str, 0);
+                    continue;
+                }
+                int countX = std::count(str.begin(), str.end(), 'X');
+                int countO = std::count(str.begin(), str.end(), 'O');
+
+                if( countX == 1 && str[0] != 'X' && str[5] != 'X' && countO > 0){
+                    tree_solve.addNode(str, 0);
+                    continue;
+                } else if(countX == 1 && countO > 0 && str[0] == 'X' && str[5] != 'O'){
+                    std::string strr = str.substr(1,5);
+                    tree_solve.addNode(str, tree_solve.find(strr));
+                    continue;
+                } else if(countX == 1 && countO > 0 && str[5] == 'X' && str[0] != 'O'){
+                    std::string strr = str.substr(1,5);
+                    tree_solve.addNode(str, tree_solve.find(strr));
+                    continue;
+                }
+
+                if( countO == 1 && str[0] != 'O' && str[5] != 'O' && countX > 0){
+                    tree_solve.addNode(str, 0);
+                    continue;
+                } else if(countO == 1 && countX > 0 && str[0] == 'O' && str[5] != 'X'){
+                    std::string strr = str.substr(1,5);
+                    tree_solve.addNode(str, tree_solve.find(strr));
+                    continue;
+                } else if(countO == 1 && countX > 0 && str[5] == 'O' && str[0] != 'X'){
+                    std::string strr = str.substr(1,5);
+                    tree_solve.addNode(str, tree_solve.find(strr));
+                    continue;
+                }
+
+                if(countX > 1 && countO > 1){
+                    tree_solve.addNode(str, 0);
+                    continue;
+                }
+
+                if(countX == 0){
+                    std::string strl = str.substr(0,5);
+                    std::string strr = str.substr(1,5);
+                    int scoreL = tree_solve.find(strl);
+                    int scoreR = tree_solve.find(strr);
+                    tree_solve.addNode(str, std::min<int>(scoreL, scoreR));
+                    continue;
+                }
+                if(countO == 0){
+                    std::string strl = str.substr(0,5);
+                    std::string strr = str.substr(1,5);
+                    int scoreL = tree_solve.find(strl);
+                    int scoreR = tree_solve.find(strr);
+                    tree_solve.addNode(str, std::max<int>(scoreL, scoreR));
+                    continue;
+                }
+                tree_solve.addNode(str, 0);
+            }
+
+            for(int p = 0; p < 2187; p++){
+                std::string str = genStr(p, 7);
+                if(str.find(' ') == std::string::npos){
+                    if(str.find("OOOOO") != std::string::npos){
+                        tree_solve.addNode(str, -10000);
+                        continue;
+                    }
+                    if(str.find("XXXXX") != std::string::npos){
+                        tree_solve.addNode(str, 10000);
+                        continue;
+                    }
+                    tree_solve.addNode(str, 0);
+                    continue;
+                }
+                int countX = std::count(str.begin(), str.end(), 'X');
+                int countO = std::count(str.begin(), str.end(), 'O');
+
+                if(countX == 0){
+                    std::string strl = str.substr(0,5);
+                    std::string strm = str.substr(1,5);
+                    std::string strr = str.substr(2,5);
+                    int scoreL = tree_solve.find(strl);
+                    int scoreR = tree_solve.find(strr);
+                    int scoreM = tree_solve.find(strm);
+                    tree_solve.addNode(str, std::min<int>(scoreL, std::min<int>(scoreR, scoreM)));
+                    continue;
+                }
+
+                if(countO == 0){
+                    std::string strl = str.substr(0,5);
+                    std::string strm = str.substr(1,5);
+                    std::string strr = str.substr(2,5);
+                    int scoreL = tree_solve.find(strl);
+                    int scoreR = tree_solve.find(strr);
+                    int scoreM = tree_solve.find(strm);
+                    tree_solve.addNode(str, std::max<int>(scoreL, std::max<int>(scoreR, scoreM)));
+                    continue;
+                }
+                if(countO >= 3 && countX >=2){
+                    tree_solve.addNode(str, 0);
+                    continue;
+                }
+                if(countX >= 3 && countO >=2){
+                    tree_solve.addNode(str, 0);
+                    continue;
+                }
+
+                if(countX == 1 && str[0] == 'X'){
+                    std::string strl = str.substr(1,5);
+                    std::string strr = str.substr(2,5);
+                    int scoreL = tree_solve.find(strl);
+                    int scoreR = tree_solve.find(strr);
+                    tree_solve.addNode(str, std::min<int>(scoreL, scoreR));
+                    continue;
+                } else if(countX == 1 && str[6] == 'X'){
+                    std::string strl = str.substr(0,5);
+                    std::string strr = str.substr(1,5);
+                    int scoreL = tree_solve.find(strl);
+                    int scoreR = tree_solve.find(strr);
+                    tree_solve.addNode(str, std::min<int>(scoreL, scoreR));
+                    continue;
+                } else if( (countX == 1  || countX == 2 && str[1] == str[0] && !(str[5] == str[6] && str[5] == 'O') )&& str[1] == 'X'){
+                    std::string strr = str.substr(2,5);
+                    int scoreR = tree_solve.find(strr);
+                    tree_solve.addNode(str, scoreR);
+                    continue;
+                }else if((countX == 1  || countX == 2 && str[5] == str[6] && !(str[0] == str[1] && str[0] == 'O'))&& str[5] == 'X'){
+                    std::string strr = str.substr(0,5);
+                    int scoreR = tree_solve.find(strr);
+                    tree_solve.addNode(str, scoreR);
+                    continue;
+                }else if(countX == 2 && str[0] == str[6] && str[0] == 'X'){
+                    std::string strr = str.substr(1,5);
+                    int scoreR = tree_solve.find(strr);
+                    tree_solve.addNode(str, scoreR);
+                    continue;
+                }else if(countX == 1){
+                    tree_solve.addNode(str, 0);
+                    continue;
+                }
+
+                if(countO == 1 && str[0] == 'O'){
+                    std::string strl = str.substr(1,5);
+                    std::string strr = str.substr(2,5);
+                    int scoreL = tree_solve.find(strl);
+                    int scoreR = tree_solve.find(strr);
+                    tree_solve.addNode(str, std::max<int>(scoreL, scoreR));
+                    continue;
+                } else if(countO == 1 && str[6] == 'O'){
+                    std::string strl = str.substr(0,5);
+                    std::string strr = str.substr(1,5);
+                    int scoreL = tree_solve.find(strl);
+                    int scoreR = tree_solve.find(strr);
+                    tree_solve.addNode(str, std::max<int>(scoreL, scoreR));
+                    continue;
+                } else if((countO == 1 || countO == 2 && str[1] == str[0] && !(str[5] == str[6] && str[5] == 'X'))&& str[1] == 'O'){
+                    std::string strr = str.substr(2,5);
+                    int scoreR = tree_solve.find(strr);
+                    tree_solve.addNode(str, scoreR);
+                    continue;
+                }else if((countO == 1 || countO == 2 && str[5] == str[6] && !(str[0] == str[1] && str[0] == 'X'))&& str[5] == 'O'){
+                    std::string strr = str.substr(0,5);
+                    int scoreR = tree_solve.find(strr);
+                    tree_solve.addNode(str, scoreR);
+                    continue;
+                }else if(countO == 2 && str[0] == str[6] && str[0] == 'O'){
+                    std::string strr = str.substr(1,5);
+                    int scoreR = tree_solve.find(strr);
+                    tree_solve.addNode(str, scoreR);
+                    continue;
+                }else if(countO == 1){
+                    tree_solve.addNode(str, 0);
+                    continue;
+                }
+
+
+                tree_solve.addNode(str, 0);
+            }
+
+            for(int p = 0; p < 6561; p++){
+                std::string str = genStr(p, 8);
+                if(str.find(' ') == std::string::npos){
+                    if(str.find("OOOOO") != std::string::npos){
+                        tree_solve.addNode(str, -10000);
+                        continue;
+                    }
+                    if(str.find("XXXXX") != std::string::npos){
+                        tree_solve.addNode(str, 10000);
+                        continue;
+                    }
+                    tree_solve.addNode(str, 0);
+                    continue;
+                }
+                if(str == "XXX  OOO"){
+                    tree_solve.addNode(str, 0);
+                }
+                int scoreX = -100000;
+                int scoreY =  100000;
+                for(int p = 0; p < 4; p++){
+                    std::string strn = str.substr(p, 5);
+                    int countX = std::count(strn.begin(),strn.end(), 'X');
+                    int countO = std::count(strn.begin(),strn.end(), 'O');
+                    if(countX > 0 && countO > 0){
+                        continue;
+                    }
+                    if(countX > 0 && countO == 0){
+                        int score = tree_solve.find(strn);
+                        if(score > scoreX){
+                            scoreX = score;
+                        }
+                    }
+                    if(countO > 0 && countX == 0){
+                        int score = tree_solve.find(strn);
+                        if(score < scoreY){
+                            scoreY = score;
+                        }
+                    }
+                }
+                if(scoreY == 100000 || scoreX > -scoreY){
+                    tree_solve.addNode(str, scoreX);
+                    continue;
+                }
+                if(scoreX == -100000 || scoreX < -scoreY){
+                    tree_solve.addNode(str, scoreY);
+                    continue;
+                }
+
+
+                tree_solve.addNode(str, 0);
+            }
+
+            for(int p = 0; p < 6561; p++){
+                std::string str = genStr(p, 8);
+                str.insert(4 , 1, 'X');
+                if(str.find(' ') == std::string::npos){
+                    if(str.find("OOOOO") != std::string::npos){
+                        tree_solve.addNode(str, -10000);
+                        continue;
+                    }
+                    if(str.find("XXXXX") != std::string::npos){
+                        tree_solve.addNode(str, 10000);
+                        continue;
+                    }
+
+                    tree_solve.addNode(str, 0);
+                    continue;
+                }
+                int scoreX = -100000;
+                int scoreY =  100000;
+                for(int p = 0; p < 5; p++){
+                    std::string strn = str.substr(p, 5);
+                    int countX = std::count(strn.begin(),strn.end(), 'X');
+                    int countO = std::count(strn.begin(),strn.end(), 'O');
+                    if(countX > 0 && countO > 0){
+                        continue;
+                    }
+                    if(countX > 0 && countO == 0){
+                        int score = tree_solve.find(strn);
+                        if(score > scoreX){
+                            scoreX = score;
+                        }
+                    }
+                    if(countO > 0 && countX == 0){
+                        int score = tree_solve.find(strn);
+                        if(score < scoreY){
+                            scoreY = score;
+                        }
+                    }
+                }
+                if(scoreY == 100000 || scoreX > -scoreY){
+                    tree_solve.addNode(str, scoreX);
+                    continue;
+                }
+                if(scoreX == -100000 || scoreX < -scoreY){
+                    tree_solve.addNode(str, scoreY);
+                    continue;
+                }
+
+                tree_solve.addNode(str, 0);
+            }
+            for(int p = 0; p < 6561; p++){
+                std::string str = genStr(p, 8);
+                str.insert(4 , 1, 'O');
+                if(str.find(' ') == std::string::npos){
+                    if(str.find("OOOOO") != std::string::npos){
+                        tree_solve.addNode(str, -10000);
+                        continue;
+                    }
+                    if(str.find("XXXXX") != std::string::npos){
+                        tree_solve.addNode(str, 10000);
+                        continue;
+                    }
+                    tree_solve.addNode(str, 0);
+                    continue;
+                }
+                int scoreX = -100000;
+                int scoreY =  100000;
+                for(int p = 0; p < 5; p++){
+                    std::string strn = str.substr(p, 5);
+                    int countX = std::count(strn.begin(),strn.end(), 'X');
+                    int countO = std::count(strn.begin(),strn.end(), 'O');
+                    if(countX > 0 && countO > 0){
+                        continue;
+                    }
+                    if(countX > 0 && countO == 0){
+                        int score = tree_solve.find(strn);
+                        if(score > scoreX){
+                            scoreX = score;
+                        }
+                    }
+                    if(countO > 0 && countX == 0){
+                        int score = tree_solve.find(strn);
+                        if(score < scoreY){
+                            scoreY = score;
+                        }
+                    }
+                }
+                if(scoreY == 100000 || scoreX > -scoreY){
+                    tree_solve.addNode(str, scoreX);
+                    continue;
+                }
+                if(scoreX == -100000 || scoreX < -scoreY){
+                    tree_solve.addNode(str, scoreY);
+                    continue;
+                }
+                tree_solve.addNode(str, 0);
+            }
+            
         }
 
         std::string genStr(int p, int k){
@@ -313,7 +481,7 @@ class AI{
                 scores.push_back(std::vector<int> (len, 0));
             }*/
             int bestscore = - 1000000; // -max
-            int depth = 2; // depth search
+            int depth = 1; // depth search
             for(int i = 0; i < len; i++){
                 for(int j = 0; j < len; j++){
                     if(f.Get(i,j) == ' '){
@@ -342,106 +510,91 @@ class AI{
                     for(int j = 0; j < len; j++){
                         if(f.Get(i,j) == ' '){
                             f.Set(i,j, 'X');
-                            int score = 0;
+                            int score = 100000;
                             std::string ans1;
-                            bool fullstring = true;
                             for(int p = 0; p < 9; p++){
                                 if((j - 4 + p) >= len || (i - 4 + p) >= len){
                                     continue;
                                 }
                                 if((i - 4 + p) < 0  || (j - 4 + p) < 0){
-                                    fullstring = false;
                                     continue;
                                 }
                                 ans1.push_back(f.Get(i - 4 + p, j - 4 + p));
-                            }
-                            if(!fullstring){
-                                std::reverse(ans1.begin(), ans1.end());
                             }
                             Node<int, std::string> * ans1node = tree_solve.foundNode(ans1);
 
                             if(ans1node != nullptr){
                                 score += ans1node->value;
+                                //score = std::min<int>(score, ans1node->value);
                             } else{
                                 std::cerr << "Not found situation" << std::endl;
-                                std::cerr << ans1 << std::endl;
+                                std::cerr << ans1 << "_Len:" << ans1.size() << std::endl;
                             }
 
                             std::string ans2;
-                            fullstring = true;
                             for(int p = 0; p < 9; p++){
                                 if((i - 4 + p) >= len){
                                     continue;
                                 }
                                 if((i - 4 + p) < 0){
-                                    fullstring = false;
                                     continue;
                                 }
                                 ans2.push_back(f.Get(i - 4 + p, j));
-                            }
-                            if(!fullstring){
-                                std::reverse(ans2.begin(), ans2.end());
                             }
 
                             Node<int, std::string> * ans2node = tree_solve.foundNode(ans2);
                             if(ans2node != nullptr)
                                 score += ans2node->value;
+                                //score = std::min<int>(score, ans2node->value);
                             else{
                                 std::cerr << "Not found situation" << std::endl;
-                                std::cerr << ans2 << std::endl;
+                                std::cerr << ans2 << "_Len:" << ans2.size() << std::endl;
                             }
 
                             std::string ans3;
-                            fullstring = true;
                             for(int p = 0; p < 9; p++){
                                 if((j - 4 + p) >= len){
                                     continue;
                                 }
                                 if((j - 4 + p) < 0 ){
-                                    fullstring = false;
                                     continue;
                                 }
                                 ans3.push_back(f.Get(i, j  - 4 + p));
                             }
                             
-                            if(!fullstring){
-                                std::reverse(ans3.begin(), ans3.end());
-                            }
 
                             Node<int, std::string> * ans3node = tree_solve.foundNode(ans3);
                             if(ans3node != nullptr)
                                 score += ans3node->value;
+                                //score = std::min<int>(score, ans3node->value);
                             else{
                                 std::cerr << "Not found situation" << std::endl;
-                                std::cerr << ans3 << std::endl;
+                                std::cerr << ans3 << "_Len:" << ans3.size() << std::endl;
                             }
 
                             std::string ans4;
-                            fullstring = true;
                             for(int p = 0; p < 9; p++){
                                 if((i - 4 + p) >= len || (j + 4 - p) < 0 ){
                                     continue;
                                 }
                                 if((i - 4 + p) < 0 || (j + 4 - p) >= len){
-                                    fullstring = false;
                                     continue;
                                 }
                                 ans4.push_back(f.Get(i - 4 + p, j  + 4 - p));
                             }
                             
-                            if(!fullstring){
-                                std::reverse(ans4.begin(), ans4.end());
-                            }
 
                             Node<int, std::string> * ans4node = tree_solve.foundNode(ans4);
                             if(ans4node != nullptr)
                                 score += ans4node->value;
+                                //score = std::min<int>(score, ans4node->value);
                             else{
                                 std::cerr << "Not found situation" << std::endl;
-                                std::cerr << ans4 << std::endl;
+                                std::cerr << ans4 << "_Len:" << ans4.size() << std::endl;
                             }
 
                             score += minmax(f, depth - 1, false);
+                            //score = std::min<int>(score, minmax(f, depth - 1, false));
                             f.Set(i,j, ' ');
                             if(bestscore < score){
                                 bestscore = score;
@@ -454,7 +607,7 @@ class AI{
                     for(int j = 0; j < len; j++){
                         if(f.Get(i,j) == ' '){
                             f.Set(i,j, 'O');
-                            int score = 0;
+                            int score = -100000;
                             std::string ans1;
                             for(int p = 0; p < 9; p++){
                                 if((i - 4 + p) < 0  || (j - 4 + p) < 0 || (j - 4 + p) >= len || (i - 4 + p) >= len){
@@ -465,9 +618,10 @@ class AI{
                             Node<int, std::string> * ans1node = tree_solve.foundNode(ans1);
                             if(ans1node != nullptr)
                                 score += ans1node->value;
+                                //score = std::max<int>(score, ans1node->value);
                             else{
                                 std::cerr << "Not found situation" << std::endl;
-                                std::cerr << ans1 << std::endl;
+                                std::cerr << ans1 << "_Len:" << ans1.size() << std::endl;
                             }
 
                             std::string ans2;
@@ -482,9 +636,10 @@ class AI{
                             Node<int, std::string> * ans2node = tree_solve.foundNode(ans2);
                             if(ans2node != nullptr)
                                 score += ans2node->value;
+                                //score = std::max<int>(score, ans1node->value);
                             else{
                                 std::cerr << "Not found situation" << std::endl;
-                                std::cerr << ans2 << std::endl;
+                                std::cerr << ans2 << "_Len:" << ans2.size() << std::endl;
                             }
 
                             std::string ans3;
@@ -498,9 +653,10 @@ class AI{
                             Node<int, std::string> * ans3node = tree_solve.foundNode(ans3);
                             if(ans3node != nullptr)
                                 score += ans3node->value;
+                                //score = std::max<int>(score, ans1node->value);
                             else{
                                 std::cerr << "Not found situation" << std::endl;
-                                std::cerr << ans3 << std::endl;
+                                std::cerr << ans3 << "_Len:" << ans3.size() << std::endl;
                             }
 
                             std::string ans4;
@@ -514,12 +670,14 @@ class AI{
                             Node<int, std::string> * ans4node = tree_solve.foundNode(ans4);
                             if(ans4node != nullptr)
                                 score += ans4node->value;
+                                //score = std::max<int>(score, ans1node->value);
                             else{
                                 std::cerr << "Not found situation" << std::endl;
-                                std::cerr << ans4 << std::endl;
+                                std::cerr << ans4 << "_Len:" << ans4.size() << std::endl;
                             }
 
                             score += minmax(f, depth - 1, true);
+                            //score = std::max<int>(score, minmax(f, depth -1, true));
                             f.Set(i,j, ' ');
                             if(bestscore > score){
                                 bestscore = score;

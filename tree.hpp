@@ -28,6 +28,15 @@ public:
         return foundNoderev(key, root);
     }
 
+    Tv find(Tk key){
+        Node<Tv, Tk> * res = foundNode(key);
+        if(res != nullptr){
+            return res->value;
+        }else {
+            return Tv();
+        }
+    }
+
     void addNode(Tk key, Tv value){
         Node<Tv,Tk> * ptr = foundNode(key);
         if(ptr){

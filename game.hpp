@@ -84,6 +84,12 @@ int checkwin(Field& f, sf::Vector2f& start, sf::Vector2f& end){
                 end.y = j - k2[3];
                 return 2;
             }
+            k1[0]=k1[1]=k1[2]=k1[3]=0;
+            k2[0]=k2[1]=k2[2]=k2[3]=0;
+            str[0] = "         ";
+            str[1] = "         ";
+            str[2] = "         ";
+            str[3] = "         ";
         }
     }
     return 0;
@@ -283,7 +289,7 @@ class GameAI {
                                                     playline(sf::Lines, (count + 1) * 2), playlinev(sf::Lines, (count + 1) * 2), 
                                                     line(sf::Vector2f(0.f,0.f)) {
             step = _l / (count + 2);
-            playsh = false;
+            playsh = true;
             gameover = false;
             win = 0;
 
@@ -350,7 +356,7 @@ class GameAI {
                                 answ.setPosition((x/step)*step + 3, (y/step)*step + 3);
                                 circls.push_back(answ);
                                 playsh = false;
-                                tik.play();
+                                //tik.play();
                                 win = checkwin(f, start, end);
                                 if(win){
                                     gameover = true;
@@ -376,12 +382,12 @@ class GameAI {
                                 }
                             }
                             if(!playsh && !gameover){
-                                int px, py;
+                                int px = 0, py = 0;
                                 aiplayer.GetChose(f, px , py);
                                 f.Set(px, py, 'X');
                                 sf::CircleShape  answ(step/2.f, 3);
                                 answ.setFillColor(sf::Color(0, 100, 50));
-                                answ.setPosition(px*step , py*step + 5);
+                                answ.setPosition((px + 1)*step , (py + 1)*step + 5);
                                 tringls.push_back(answ);
                                 playsh = true;
                                 //tok.play();
