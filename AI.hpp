@@ -482,8 +482,8 @@ class AI{
                 scores.push_back(std::vector<int> (len, 0));
             }*/
             int bestscore = - 1000000; // -max
-            int depth = 5; // depth search
-            //#pragma omp parralel for
+            int depth = 3; // depth search
+            #pragma omp parralel for
             for(int i = 0; i < len; i++){
                 for(int j = 0; j < len; j++){
                     if(f.Get(i,j) == ' '){
@@ -513,7 +513,7 @@ class AI{
             int bestscore = 0;
             int len = f.GetLen();
             if(chosen){
-                //#pragma omp parralel for
+                #pragma omp parralel for
                 for(int i = 0; i < len; i++){
                     for(int j = 0; j < len; j++){
                         if(f.Get(i,j) == ' '){
@@ -611,7 +611,7 @@ class AI{
                     }
                 }
             } else {
-                //#pragma omp parralel for
+                #pragma omp parralel for
                 for(int i = 0; i < len; i++){
                     for(int j = 0; j < len; j++){
                         if(f.Get(i,j) == ' '){
