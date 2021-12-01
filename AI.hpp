@@ -475,7 +475,7 @@ class AI{
             return res;
         }
 
-        void GetChose(Field& f, int &x, int &y, int px, int py){
+        void GetChose(Field& f, int &xt, int &yt, int px, int py){
             int len = f.GetLen();
             /*std::vector<std::vector<int> > scores;
             for(int i = 0; i < len; i++){
@@ -483,24 +483,38 @@ class AI{
             }*/
             int bestscore = - 1000000; // -max
             int depth = 3; // depth search
+            //std::vector<std::vector<bool> > boolfield(15, std::vector<bool> (15, false));
+            std::vector<int> boolfield(15,0);
             #pragma omp parralel for
             for(int i = 0; i < len; i++){
                 for(int j = 0; j < len; j++){
-                    if(f.Get(i,j) == ' '){
-                        f.Set(i,j, 'X');
-                        int score = 0;
-                        //#pragma omp parallel
-                        //#pragma omp shared(tree_solve)
-                        {
-                            score = minmax(f, depth, false);
-                        }
-                        f.Set(i,j, ' ');
-                        if(bestscore < score){
-                            x = i;
-                            y = j;
-                            bestscore = score;
+                    if(f.Get(i,j) == 'O' || f.Get(i,j) == 'X'){
+                        for(int x = -2; x <= 2; x++){ // 4
+                            for(int y = -2; y <= 2; y++){ // 4
+                                if(i + x < 0 || i + x >= len  || j + y < 0 || j + y >= len){
+                                    continue;
+                                }
+                                if(f.Get(i + x,j + y) != ' ' || boolfield[j + y] & (1 << (i + x))){
+                                    continue;
+                                }
+                                boolfield[j + y] |= 1 << (i + x);
+                                f.Set(i + x,j + y, 'X');
+                                int score = 0;
+                                //#pragma omp parallel
+                                //#pragma omp shared(tree_solve)
+                                {
+                                    score = minmax(f, depth, false);
+                                }
+                                f.Set(i + x,j + y, ' ');
+                                if(bestscore < score){
+                                    xt = i + x;
+                                    yt = j + y;
+                                    bestscore = score;
+                                }
+                            }
                         }
                     }
+                    
                 }
             }
 
@@ -512,100 +526,114 @@ class AI{
             }
             int bestscore = 0;
             int len = f.GetLen();
+            //std::vector<std::vector<bool> > boolfield(15, std::vector<bool> (15, false));
+            std::vector<int> boolfield(15,0);
             if(chosen){
                 #pragma omp parralel for
                 for(int i = 0; i < len; i++){
                     for(int j = 0; j < len; j++){
-                        if(f.Get(i,j) == ' '){
-                            f.Set(i,j, 'X');
-                            int score = 100000;
-                            std::string ans1;
-                            for(int p = 0; p < 9; p++){
-                                if((j - 4 + p) >= len || (i - 4 + p) >= len){
-                                    continue;
-                                }
-                                if((i - 4 + p) < 0  || (j - 4 + p) < 0){
-                                    continue;
-                                }
-                                ans1.push_back(f.Get(i - 4 + p, j - 4 + p));
-                            }
-                            Node<int, std::string> * ans1node = tree_solve.foundNode(ans1);
+                        if(f.Get(i,j) == 'X' || f.Get(i,j) == 'O'){
+                            for(int x = -2; x <= 2; x++){
+                                for(int y = -2; y <= 2; y++){
+                                    if(i + x < 0 || i + x >= len || j + y < 0 || j + y >= len){
+                                        continue;
+                                    }
 
-                            if(ans1node != nullptr){
-                                score += ans1node->value;
-                                //score = std::min<int>(score, ans1node->value);
-                            } else{
-                                std::cerr << "Not found situation" << std::endl;
-                                std::cerr << ans1 << "_Len:" << ans1.size() << std::endl;
-                            }
+                                    if(f.Get(i + x, j + y) != ' ' || boolfield[j + y] & (1 << (i + x))){
+                                        continue;
+                                    }
+                                    boolfield[j + y] |= 1<<(i + x);
+                                    f.Set(i + x,j + y, 'X');
+                                    int score = 100000;
+                                    std::string ans1;
+                                    for(int p = 0; p < 9; p++){
+                                        if((j + y - 4 + p) >= len || (i + x - 4 + p) >= len){
+                                            continue;
+                                        }
+                                        if((i + x - 4 + p) < 0  || (j + y - 4 + p) < 0){
+                                            continue;
+                                        }
+                                        ans1.push_back(f.Get(i + x - 4 + p, j + y - 4 + p));
+                                    }
+                                    Node<int, std::string> * ans1node = tree_solve.foundNode(ans1);
 
-                            std::string ans2;
-                            for(int p = 0; p < 9; p++){
-                                if((i - 4 + p) >= len){
-                                    continue;
+                                    if(ans1node != nullptr){
+                                        //score += ans1node->value;
+                                        score = std::max<int>(score, ans1node->value);
+                                    } else{
+                                        std::cerr << "Not found situation" << std::endl;
+                                        std::cerr << ans1 << "_Len:" << ans1.size() << std::endl;
+                                    }
+
+                                    std::string ans2;
+                                    for(int p = 0; p < 9; p++){
+                                        if((i + x - 4 + p) >= len){
+                                            continue;
+                                        }
+                                        if((i + x - 4 + p) < 0){
+                                            continue;
+                                        }
+                                        ans2.push_back(f.Get(i + x - 4 + p, j + y));
+                                    }
+
+                                    Node<int, std::string> * ans2node = tree_solve.foundNode(ans2);
+                                    if(ans2node != nullptr)
+                                        //score += ans2node->value;
+                                        score = std::max<int>(score, ans2node->value);
+                                    else{
+                                        std::cerr << "Not found situation" << std::endl;
+                                        std::cerr << ans2 << "_Len:" << ans2.size() << std::endl;
+                                    }
+
+                                    std::string ans3;
+                                    for(int p = 0; p < 9; p++){
+                                        if((j + y - 4 + p) >= len){
+                                            continue;
+                                        }
+                                        if((j + y - 4 + p) < 0 ){
+                                            continue;
+                                        }
+                                        ans3.push_back(f.Get(i + x, j + y  - 4 + p));
+                                    }
+                                    
+
+                                    Node<int, std::string> * ans3node = tree_solve.foundNode(ans3);
+                                    if(ans3node != nullptr)
+                                        //score += ans3node->value;
+                                        score = std::max<int>(score, ans3node->value);
+                                    else{
+                                        std::cerr << "Not found situation" << std::endl;
+                                        std::cerr << ans3 << "_Len:" << ans3.size() << std::endl;
+                                    }
+
+                                    std::string ans4;
+                                    for(int p = 0; p < 9; p++){
+                                        if((i + x - 4 + p) >= len || (j + y + 4 - p) < 0 ){
+                                            continue;
+                                        }
+                                        if((i + x - 4 + p) < 0 || (j + y + 4 - p) >= len){
+                                            continue;
+                                        }
+                                        ans4.push_back(f.Get(i + x - 4 + p, j + y  + 4 - p));
+                                    }
+                                    
+
+                                    Node<int, std::string> * ans4node = tree_solve.foundNode(ans4);
+                                    if(ans4node != nullptr)
+                                        //score += ans4node->value;
+                                        score = std::max<int>(score, ans4node->value);
+                                    else{
+                                        std::cerr << "Not found situation" << std::endl;
+                                        std::cerr << ans4 << "_Len:" << ans4.size() << std::endl;
+                                    }
+
+                                    score += minmax(f, depth - 1, false);
+                                    //score = std::min<int>(score, minmax(f, depth - 1, false));
+                                    f.Set(i + x,j + y, ' ');
+                                    if(bestscore < score){
+                                        bestscore = score;
+                                    }
                                 }
-                                if((i - 4 + p) < 0){
-                                    continue;
-                                }
-                                ans2.push_back(f.Get(i - 4 + p, j));
-                            }
-
-                            Node<int, std::string> * ans2node = tree_solve.foundNode(ans2);
-                            if(ans2node != nullptr)
-                                score += ans2node->value;
-                                //score = std::min<int>(score, ans2node->value);
-                            else{
-                                std::cerr << "Not found situation" << std::endl;
-                                std::cerr << ans2 << "_Len:" << ans2.size() << std::endl;
-                            }
-
-                            std::string ans3;
-                            for(int p = 0; p < 9; p++){
-                                if((j - 4 + p) >= len){
-                                    continue;
-                                }
-                                if((j - 4 + p) < 0 ){
-                                    continue;
-                                }
-                                ans3.push_back(f.Get(i, j  - 4 + p));
-                            }
-                            
-
-                            Node<int, std::string> * ans3node = tree_solve.foundNode(ans3);
-                            if(ans3node != nullptr)
-                                score += ans3node->value;
-                                //score = std::min<int>(score, ans3node->value);
-                            else{
-                                std::cerr << "Not found situation" << std::endl;
-                                std::cerr << ans3 << "_Len:" << ans3.size() << std::endl;
-                            }
-
-                            std::string ans4;
-                            for(int p = 0; p < 9; p++){
-                                if((i - 4 + p) >= len || (j + 4 - p) < 0 ){
-                                    continue;
-                                }
-                                if((i - 4 + p) < 0 || (j + 4 - p) >= len){
-                                    continue;
-                                }
-                                ans4.push_back(f.Get(i - 4 + p, j  + 4 - p));
-                            }
-                            
-
-                            Node<int, std::string> * ans4node = tree_solve.foundNode(ans4);
-                            if(ans4node != nullptr)
-                                score += ans4node->value;
-                                //score = std::min<int>(score, ans4node->value);
-                            else{
-                                std::cerr << "Not found situation" << std::endl;
-                                std::cerr << ans4 << "_Len:" << ans4.size() << std::endl;
-                            }
-
-                            score += minmax(f, depth - 1, false);
-                            //score = std::min<int>(score, minmax(f, depth - 1, false));
-                            f.Set(i,j, ' ');
-                            if(bestscore < score){
-                                bestscore = score;
                             }
                         }
                     }
@@ -614,82 +642,95 @@ class AI{
                 #pragma omp parralel for
                 for(int i = 0; i < len; i++){
                     for(int j = 0; j < len; j++){
-                        if(f.Get(i,j) == ' '){
-                            f.Set(i,j, 'O');
-                            int score = -100000;
-                            std::string ans1;
-                            for(int p = 0; p < 9; p++){
-                                if((i - 4 + p) < 0  || (j - 4 + p) < 0 || (j - 4 + p) >= len || (i - 4 + p) >= len){
-                                    continue;
+                         if(f.Get(i,j) == 'X' || f.Get(i,j) == 'O'){
+                            for(int x = -2; x <= 2; x++){
+                                for(int y = -2; y <= 2; y++){
+                                    if(i + x < 0 || i + x >= len || j + y < 0 || j + y >= len){
+                                        continue;
+                                    }
+
+                                    if(f.Get(i + x, j + y) != ' ' || boolfield[j + y] & 1 << (i + x)){
+                                        continue;
+                                    }
+
+                                    boolfield[j + y] |= 1 << (i + x);
+                                    f.Set(i + x,j + y, 'O');
+                                    int score = -100000;
+                                    std::string ans1;
+                                    for(int p = 0; p < 9; p++){
+                                        if((i + x - 4 + p) < 0  || (j + y - 4 + p) < 0 || (j + y - 4 + p) >= len || (i + x - 4 + p) >= len){
+                                            continue;
+                                        }
+                                        ans1.push_back(f.Get(i + x - 4 + p, j + y - 4 + p));
+                                    }
+                                    Node<int, std::string> * ans1node = tree_solve.foundNode(ans1);
+                                    if(ans1node != nullptr)
+                                        //score += ans1node->value;
+                                        score = std::min<int>(score, ans1node->value);
+                                    else{
+                                        std::cerr << "Not found situation" << std::endl;
+                                        std::cerr << ans1 << "_Len:" << ans1.size() << std::endl;
+                                    }
+
+                                    std::string ans2;
+
+                                    for(int p = 0; p < 9; p++){
+                                        if((i + x - 4 + p) < 0 || (i + x - 4 + p) >= len){
+                                            continue;
+                                        }
+                                        ans2.push_back(f.Get(i + x - 4 + p, j + y));
+                                    }
+
+                                    Node<int, std::string> * ans2node = tree_solve.foundNode(ans2);
+                                    if(ans2node != nullptr)
+                                        //score += ans2node->value;
+                                        score = std::min<int>(score, ans1node->value);
+                                    else{
+                                        std::cerr << "Not found situation" << std::endl;
+                                        std::cerr << ans2 << "_Len:" << ans2.size() << std::endl;
+                                    }
+
+                                    std::string ans3;
+                                    for(int p = 0; p < 9; p++){
+                                        if((j + y - 4 + p) < 0 || (j + y - 4 + p) >= len){
+                                            continue;
+                                        }
+                                        ans3.push_back(f.Get(i + x, j + y  - 4 + p));
+                                    }
+                                    
+                                    Node<int, std::string> * ans3node = tree_solve.foundNode(ans3);
+                                    if(ans3node != nullptr)
+                                        //score += ans3node->value;
+                                        score = std::min<int>(score, ans1node->value);
+                                    else{
+                                        std::cerr << "Not found situation" << std::endl;
+                                        std::cerr << ans3 << "_Len:" << ans3.size() << std::endl;
+                                    }
+
+                                    std::string ans4;
+                                    for(int p = 0; p < 9; p++){
+                                        if((j + y + 4 - p) < 0 || (j + y + 4 - p) >= len || (i + x - 4 + p) < 0 || (i + x - 4 + p) >= len){
+                                            continue;
+                                        }
+                                        ans4.push_back(f.Get(i + x - 4 + p, j + y + 4 - p));
+                                    }
+
+                                    Node<int, std::string> * ans4node = tree_solve.foundNode(ans4);
+                                    if(ans4node != nullptr)
+                                        //score += ans4node->value;
+                                        score = std::min<int>(score, ans1node->value);
+                                    else{
+                                        std::cerr << "Not found situation" << std::endl;
+                                        std::cerr << ans4 << "_Len:" << ans4.size() << std::endl;
+                                    }
+
+                                    score += minmax(f, depth - 1, true);
+                                    //score = std::max<int>(score, minmax(f, depth -1, true));
+                                    f.Set(i + x,j + y, ' ');
+                                    if(bestscore > score){
+                                        bestscore = score;
+                                    }
                                 }
-                                ans1.push_back(f.Get(i - 4 + p, j - 4 + p));
-                            }
-                            Node<int, std::string> * ans1node = tree_solve.foundNode(ans1);
-                            if(ans1node != nullptr)
-                                score += ans1node->value;
-                                //score = std::max<int>(score, ans1node->value);
-                            else{
-                                std::cerr << "Not found situation" << std::endl;
-                                std::cerr << ans1 << "_Len:" << ans1.size() << std::endl;
-                            }
-
-                            std::string ans2;
-
-                            for(int p = 0; p < 9; p++){
-                                if((i - 4 + p) < 0 || (i - 4 + p) >= len){
-                                    continue;
-                                }
-                                ans2.push_back(f.Get(i - 4 + p, j));
-                            }
-
-                            Node<int, std::string> * ans2node = tree_solve.foundNode(ans2);
-                            if(ans2node != nullptr)
-                                score += ans2node->value;
-                                //score = std::max<int>(score, ans1node->value);
-                            else{
-                                std::cerr << "Not found situation" << std::endl;
-                                std::cerr << ans2 << "_Len:" << ans2.size() << std::endl;
-                            }
-
-                            std::string ans3;
-                            for(int p = 0; p < 9; p++){
-                                if((j - 4 + p) < 0 || (j - 4 + p) >= len){
-                                    continue;
-                                }
-                                ans3.push_back(f.Get(i, j  - 4 + p));
-                            }
-                            
-                            Node<int, std::string> * ans3node = tree_solve.foundNode(ans3);
-                            if(ans3node != nullptr)
-                                score += ans3node->value;
-                                //score = std::max<int>(score, ans1node->value);
-                            else{
-                                std::cerr << "Not found situation" << std::endl;
-                                std::cerr << ans3 << "_Len:" << ans3.size() << std::endl;
-                            }
-
-                            std::string ans4;
-                            for(int p = 0; p < 9; p++){
-                                if((j + 4 - p) < 0 || (j + 4 - p) >= len || (i - 4 + p) < 0 || (i - 4 + p) >= len){
-                                    continue;
-                                }
-                                ans4.push_back(f.Get(i - 4 + p, j  + 4 - p));
-                            }
-
-                            Node<int, std::string> * ans4node = tree_solve.foundNode(ans4);
-                            if(ans4node != nullptr)
-                                score += ans4node->value;
-                                //score = std::max<int>(score, ans1node->value);
-                            else{
-                                std::cerr << "Not found situation" << std::endl;
-                                std::cerr << ans4 << "_Len:" << ans4.size() << std::endl;
-                            }
-
-                            score += minmax(f, depth - 1, true);
-                            //score = std::max<int>(score, minmax(f, depth -1, true));
-                            f.Set(i,j, ' ');
-                            if(bestscore > score){
-                                bestscore = score;
                             }
                         }
                     }
