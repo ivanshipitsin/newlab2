@@ -283,7 +283,6 @@ class GameAI {
         bool playsh;
         bool gameover;
         int win;
-        AI aiplayer;
     public:
         GameAI(unsigned int _l, int count = 15) : window(sf::VideoMode(_l, _l), "Tik-tok"), vm(_l,_l), f(count), 
                                                     playline(sf::Lines, (count + 1) * 2), playlinev(sf::Lines, (count + 1) * 2), 
@@ -322,7 +321,7 @@ class GameAI {
             return 0;
         }
 
-        void start1(){
+        void start1(newAi & aiplayer){
             sf::Sound tik;
             tik.setBuffer(bufftik);
 
@@ -383,7 +382,7 @@ class GameAI {
                             }
                             if(!playsh && !gameover){
                                 int px = 0, py = 0;
-                                aiplayer.GetChose(f, px , py, x/step - 1, y/step - 1);
+                                aiplayer.iterative_negamax(true, f ,6, px , py);
                                 f.Set(px, py, 'X');
                                 sf::CircleShape  answ(step/2.f, 3);
                                 answ.setFillColor(sf::Color(0, 100, 50));

@@ -5,7 +5,11 @@
 #include <string>
 #include "tree.hpp"
 #include <iostream>
-
+#include <time.h>
+#include <vector>
+#include <utility>
+#include <algorithm>
+#include <tuple>
 
 class Field{
     public:
@@ -39,6 +43,57 @@ class Field{
         std::vector<std::vector<char> > data;
 };
 
+int checkwinb(Field& f, int i, int j){
+    int len = f.GetLen();
+    std::string str[4] = {"         ", "         ", "         ", "         "};
+    std::string::size_type k1[4];
+    std::string::size_type k2[4];
+    for(int k = -4; k <= 4; k++){
+        if(i+k >= 0 && i + k < len && j + k >= 0 && j + k < len)
+            str[0][k+4] = f.Get(i + k, j + k);
+        if(i+k >= 0 && i + k < len)
+            str[1][k+4] = f.Get(i + k, j);
+        if(j + k >= 0 && j + k < len)
+            str[2][k+4] = f.Get(i, j + k);
+        if(i+k >= 0 && i + k < len && j - k >= 0 && j - k < len)
+            str[3][k+4] = f.Get(i + k, j - k);
+    }
+    for(int l = 0; l < 4; l++){
+        k1[l] = str[l].find("XXXXX");
+        k2[l] = str[l].find("OOOOO");
+    }
+    if(k1[0] != std::string::npos){
+        return 1;
+    }
+    if(k1[1] != std::string::npos){
+        return 1;
+    }
+    if(k1[2] != std::string::npos){
+                
+        return 1;
+    }
+    if(k1[3] != std::string::npos){
+                
+        return 1;
+    }
+    if(k2[0] != std::string::npos){
+                
+        return 2;
+    }
+    if(k2[1] != std::string::npos){
+        
+        return 2;
+    }
+    if(k2[2] != std::string::npos){
+                
+        return 2;
+    }
+    if(k2[3] != std::string::npos){
+                
+        return 2;
+    }
+    return 0;
+}
 
 
 class AI{
@@ -740,6 +795,609 @@ class AI{
             return bestscore;
         }
 
+
+};
+
+class newAi{
+    private:
+
+        struct Move {
+            int i;
+            int j;
+            int score;
+        };
+
+        int *** Table;
+        Tree<int,int> cache;
+        Tree< std::tuple<int,int,int>, int> gamecache;
+
+        int CacheHits;
+        int Cutoffs;
+        int CacheCutoffs;
+        int CachePuts;
+        int StateCacheHits;
+        int StateCachePuts;
+        int MaximumDepth;
+        int fc;
+
+        Move bestmove;
+
+        
+
+
+        int hash(Field & f){
+            int l = f.GetLen();
+            int h = 0;
+            for(int i = 0; i < l; i++){
+                for(int j = 0; j < l; j++){
+                    if(f.Get(i,j) == ' '){
+                        continue;
+                    }
+                    if(f.Get(i,j) == 'X'){
+                        h ^= Table[i][j][0];
+                    }
+                    if(f.Get(i,j) == 'O'){
+                        h ^= Table[i][j][1];
+                    }
+                }
+            }
+            return h;
+        }
+
+        int update_hash(int h, bool player, int i, int j){
+            int newh = h;
+            if(player){
+                newh ^= Table[i][j][0];
+            }else{
+                newh ^= Table[i][j][1];
+            }
+            return newh;
+        }
+
+        std::vector<Move> Generatechoses(std::array<int,4> const & restric, Field & f, bool player){
+            std::vector<Move > scors;
+            int len = f.GetLen();
+            int xmin = restric[0];
+            int ymin = restric[1];
+            int xmax = restric[2];
+            int ymax = restric[3];
+            for(int i = std::max(xmin - 2, 0); i <= std::min(xmax + 2, len); i++){
+                for(int j = std::max(ymin - 2, 0); j <= std::min(ymax + 2, len); j++){
+                    if(f.Get(i,j) == ' ' && !remoteCell(f, i, j)){
+                        Move move;
+                        move.i = i;
+                        move.j = j;
+                        move.score = calcscore(f, i, j, player);
+                        if (move.score >= 100000) {
+                            std::vector<Move> winning_move = { move };
+                                return winning_move;
+                            }
+                        scors.push_back(move);
+                    }
+                }
+            }
+            std::sort(scors.begin(),scors.end(),[](Move a, Move b) {
+                    return a.score > b.score;
+                });
+            return scors;
+        }
+
+        int calcscore(Field & f, int x, int y, bool player){
+            int len = f.GetLen();
+
+            /*if(player){
+                f.Set(i,j, 'X');
+            }else{
+                f.Set(i,j, 'O');
+            }*/
+            int score = 0;
+            int tempscore = 0;
+            std::string ans1;
+            for(int p = 0; p < 9; p++){
+                if((y - 4 + p) >= len || (x - 4 + p) >= len){
+                    continue;
+                }
+                if((x - 4 + p) < 0  || (y - 4 + p) < 0){
+                    continue;
+                }
+                ans1.push_back(f.Get(x - 4 + p, y - 4 + p));
+            }
+            tempscore = calcstr(ans1);
+            if(tempscore == 100000){
+                return 100000;
+            }else{
+                score += tempscore;
+            }
+
+            std::string ans2;
+            for(int p = 0; p < 9; p++){
+                if((x - 4 + p) < 0  || (x - 4 + p) >= len){
+                    continue;
+                }
+                ans2.push_back(f.Get(x - 4 + p, y));
+            }
+            tempscore = calcstr(ans2);
+            if(tempscore == 100000){
+                return 100000;
+            }else{
+                score += tempscore;
+            }
+
+            std::string ans3;
+            for(int p = 0; p < 9; p++){
+                if((y - 4 + p) >= len || (y - 4 + p) < 0){
+                    continue;
+                }
+                ans3.push_back(f.Get(x, y - 4 + p));
+            }
+            tempscore = calcstr(ans3);
+            if(tempscore == 100000){
+                return 100000;
+            }else{
+                score += tempscore;
+            }
+
+            std::string ans4;
+            for(int p = 0; p < 9; p++){
+                if((y + 4 - p) >= len || (x - 4 + p) >= len){
+                    continue;
+                }
+                if((x - 4 + p) < 0  || (y + 4 - p) < 0){
+                    continue;
+                }
+                ans4.push_back(f.Get(x - 4 + p, y + 4 - p));
+            }
+            tempscore = calcstr(ans4);
+            if(tempscore == 100000){
+                return 100000;
+            }else{
+                score += tempscore;
+            }
+
+            //f.Set(i,j, ' ');
+            return score;
+        }
+
+        int calcstr(std::string str){
+            int score = 0;
+            for(int i = 0; (i + 4) < str.size(); ++i){
+                int countX = 0;
+                int countO = 0;
+                for(int j = 0; j < 5; ++j){
+                    if(str[i + j] == 'X'){
+                        countX++;
+                    }
+                    if(str[i + j] == 'O'){
+                        countO++;
+                    }
+                }
+                int tempscore = evalff(getState(countX,countO));
+                if(tempscore == 100000){
+                    return 100000;
+                }
+            }
+            return score;
+        }
+
+
+        int evalff(int seq) {
+            switch (seq) {
+                case 0:
+                    return 7;
+                case 1:
+                    return 35;
+                case 2:
+                    return 800;
+                case 3:
+                    return 15000;
+                case 4:
+                    return 800000;
+                case -1:
+                    return 15;
+                case -2:
+                    return 400;
+                case -3:
+                    return 1800;
+                case -4:
+                    return 100000;
+                case 17:
+                    return 0;
+            }
+        }
+
+        int evaluateblock(int blocks,int pieces) {
+            if (blocks == 0) {
+                switch (pieces) {
+                    case 1:
+                        return 10;
+                    case 2:
+                        return 100;
+                    case 3:
+                        return 1000;
+                    case 4:
+                        return 10000;
+                    default:
+                        return 100000;
+                }
+            } else if (blocks == 1) {
+                switch (pieces) {
+                    case 1:
+                        return 1;
+                    case 2:
+                        return 10;
+                    case 3:
+                        return 100;
+                    case 4:
+                        return 1000;
+                    default:
+                        return 100000;
+                }
+            } else {
+                if (pieces >= 5) {
+                    return 100000;
+                } else {
+                    return 0;
+                }
+            }
+        }
+
+        int getState(int X, int O) {
+            if (X + O == 0) {
+                return 0;
+            }
+            if (X != 0 && O == 0) {
+                return X;
+            }
+            if (X == 0 && O != 0) {
+                return -O;
+            }
+            if (X != 0 && O != 0) {
+                return 17;
+            }
+        }
+
+        int eval_board(Field & f,char pieceType, std::array<int, 4> const & restric) {
+            int len = f.GetLen();
+            int score = 0;
+            int xmin = restric[0];
+            int ymin = restric[1];
+            int xmax = restric[2];
+            int ymax = restric[3];
+
+            for (int i = xmin; i < xmax + 1; i++) {
+                for (int j = ymin; j < ymax + 1; j++) {
+                    if (f.Get(i,j) == pieceType) {
+                        int block = 0;
+                        int piece = 1;
+                        // left
+                        if (j == 0 || f.Get(i, j - 1) != ' ') {
+                            block++;
+                        }
+                        // pieceNum
+                        for (j++; j < len && f.Get(i,j) == pieceType; j++) {
+                            piece++;
+                        }
+                        // right
+                        if (j == len || f.Get(i,j) != ' ') {
+                            block++;
+                        }
+                        score += evaluateblock(block, piece);
+                    }
+                }
+            }
+
+            for (int j = ymin; j < ymax + 1; j++) {
+                for (int i = xmin; i < xmax + 1; i++) {
+                    if (f.Get(i,j) == pieceType) {
+                        int block = 0;
+                        int piece = 1;
+                        // left
+                        if (i == 0 || f.Get(i - 1, j) != ' ') {
+                            block++;
+                        }
+                        // pieceNum
+                        for (i++; i < len && f.Get(i,j) == pieceType; i++) {
+                            piece++;
+                        }
+                        // right
+                        if (i == len || f.Get(i,j) != ' ') {
+                            block++;
+                        }
+                        score += evaluateblock(block, piece);
+                    }
+                }
+            }
+
+            for (int n = xmin; n < (ymax -ymin + xmax); n += 1) {
+                int r = n;
+                int c = ymin;
+                while (r >= xmin && c <= ymax) {
+                    if (r <= xmax) {
+                        if (f.Get(r,c) == pieceType) {
+                            int block = 0;
+                            int piece = 1;
+                            // left
+                            if (c == 0 || r == len - 1 ||f.Get(r + 1, c - 1) != ' ') {
+                                block++;
+                            }
+                            // pieceNum
+                            r--;
+                            c++;
+                            for (; r >= 0 && f.Get(r,c) == pieceType; r--) {
+                                piece++;
+                                c++;
+                            }
+                            // right
+                            if (r < 0 || c == len || f.Get(r,c) != ' ') {
+                                block++;
+                            }
+                            score += evaluateblock(block, piece);
+                        }
+                    }
+                    r -= 1;
+                    c += 1;
+                }
+            }
+
+            for (int n = xmin - (ymax - ymin); n <= xmax; n++) {
+                int r = n;
+                int c = ymin;
+                while (r <= xmax && c <= ymax) {
+                    if (r >= xmin && r <= xmax) {
+                        if (f.Get(r,c) == pieceType) {
+                            int block = 0;
+                            int piece = 1;
+                            // left
+                            if (c == 0 || r == 0 || f.Get(r - 1, c - 1) != ' ') {
+                                block++;
+                            }
+                            // pieceNum
+                            r++;
+                            c++;
+                            for (; r < len && f.Get(r, c) == pieceType; r++) {
+                                piece++;
+                                c++;
+                            }
+                            // right
+                            if (r == len || c == len || f.Get(r,c) != ' ') {
+                                block++;
+                            }
+                            score += evaluateblock(block, piece);
+                        }
+                    }
+                    r += 1;
+                    c += 1;
+                }
+
+            }
+            return score;
+        }
+
+        std::array<int, 4> Get_restrictions(Field & f) {
+            int len = f.GetLen();
+            int xmin = 100;
+            int ymin = 100;
+            int xmax = -100;
+            int ymax = -100;
+            for (int i = 0; i < len; i++) {
+                for (int j = 0; j < len; j++) {
+                    if (f.Get(i,j) != ' ') {
+                        xmin = std::min(xmin, i);
+                        ymin = std::min(ymin, j);
+                        xmax = std::max(xmax, i);
+                        ymax = std::max(ymax, j);
+                    }
+                }
+            }
+            if (xmin - 2 < 0) {
+                xmin = 2;
+            }
+            if (ymin - 2 < 0) {
+                ymin = 2;
+            }
+            if (xmax + 2 >= len) {
+                xmax = len - 3;
+            }
+            if (ymax + 2 >= len) {
+                ymax = len - 3;
+            }
+            std::array<int, 4> restric = {xmin , ymin, xmax, ymax};
+            return restric;
+        }
+
+        std::array<int, 4> Change_restrictions(Field & f,std::array<int, 4> const & restric ,int  i,int  j) {
+            int len = f.GetLen();
+            int xmin = restric[0];
+            int ymin = restric[1];
+            int xmax = restric[2];
+            int ymax = restric[3];
+
+            if (i < xmin) {
+                xmin = i;
+            } else if (i > xmax) {
+                xmax = i;
+            }
+            if (j < ymin) {
+                ymin = j;
+            } else if (j > ymax) {
+                ymax = j;
+            }
+            if (xmin - 2 < 0) {
+                xmin = 2;
+            }
+            if (ymin - 2 < 0) {
+                ymin = 2;
+            }
+            if (xmax + 2 >= len) {
+                xmax = len - 3;
+            }
+            if (ymax + 2 >= len) {
+                ymax = len - 3;
+            }
+
+            std::array<int, 4> new_restic = {xmin, ymin, xmax, ymax};
+            return new_restic;
+        }
+
+
+        int evaluate_state(Field & f,bool player,int  hash, std::array<int,4> const & restric) {
+            int black_score = eval_board(f, 'X', restric);
+            int  white_score = eval_board(f, 'O', restric);
+            int score = 0;
+            if (!player) {
+                score = (black_score - white_score);
+            } else {
+                score = (white_score - black_score);
+            }
+            cache.addNode(hash, score);
+            StateCachePuts++;
+            return score;
+        }
+
+
+        int negamax(Field & f,bool player,int depth,int a,int b,int hash,std::array<int, 4> const & restric ,int last_i,int last_j) {
+            int alphaOrig = a;
+            int len = f.GetLen();
+            Node<std::tuple<int,int,int>, int >* CacheNode = gamecache.foundNode(hash);  
+            if ((CacheNode != nullptr) && (std::get<1>(CacheNode->value) >= depth)) {
+                CacheHits++;
+                int score = std::get<0>(CacheNode->value);
+                if (std::get<2>(CacheNode->value) == 0) {
+                    CacheCutoffs++;
+                    return score;
+                }
+                if (std::get<2>(CacheNode->value) == -1) {
+                    a = std::max(a, score);
+                } else if (std::get<2>(CacheNode->value) == 1) {
+                    b = std::min(b, score);
+                }
+                if (a >= b) {
+                    CacheCutoffs++;
+                    return score;
+                }
+            }
+            fc++;
+            if (checkwinb(f, last_i, last_j)) {
+                return -2000000 + (MaximumDepth - depth);
+            }
+            if (depth == 0) {
+                Node<int,int>* StateCacheNode = cache.foundNode(hash);
+                if (StateCacheNode != nullptr) {
+                    StateCacheHits++;
+                    return StateCacheNode->value;
+                }
+                return evaluate_state(f, player, hash, restric);
+            }
+
+            std::vector<Move > availSpots = Generatechoses(restric, f, player);
+            if (availSpots.size() == 0) {
+                return 0;
+            }
+
+            int i, j;
+            int newHash;
+            int bestvalue = -100000000;
+            int value;
+            for (int y = 0; y < availSpots.size(); y++) {
+                i = availSpots[y].i;
+                j  = availSpots[y].j;
+                newHash = update_hash(hash, player, i, j);
+                if(player){
+                    f.Set(i,j,'X');
+                }else {
+                    f.Set(i,j,'O');
+                }
+                std::array <int, 4> newrestric = Change_restrictions(f,restric, i, j);
+                int value = -negamax(f, !player, depth - 1, -b, -a, newHash, newrestric, i, j);
+                f.Set(i,j, ' ');
+                if (value > bestvalue) {
+                    bestvalue = value;
+                    if (depth == MaximumDepth) {
+                        bestmove = {i, j, value};
+                        //debug
+                        std::cout << "best move" << std::endl;
+                        std::cout << bestmove.i << ' ' << bestmove.j << ' ' << bestmove.score << std::endl;
+                    }
+                }
+                a = std::max(a, value);
+                if (a >= b) {
+                    break;
+                }
+            }
+            CachePuts++;
+            std::tuple<int,int,int> obj;
+            //const obj={score: bestvalue,depth:depth};
+            if (bestvalue <= alphaOrig) {
+                obj = std::make_tuple(bestvalue, depth, 1);
+            } else if (bestvalue >= b) {
+                obj = std::make_tuple(bestvalue, depth, -1);
+                //obj.Flag = -1
+            } else {
+                obj = std::make_tuple(bestvalue, depth, 0);
+                //obj.Flag = 0
+            }
+            gamecache.addNode(hash,obj);
+            return bestvalue;
+        }
+
+
+        bool remoteCell(Field & f, int r, int c) {
+            int len = f.GetLen();
+            for (int i = r - 2; i <= r + 2; i++) {
+                if (i < 0 || i >= len) continue;
+                for (int j = c - 2; j <= c + 2; j++) {
+                    if (j < 0 || j >= len) continue;
+                    if (f.Get(i,j) != ' ') return false;
+                }
+            }
+            return true;
+        }
+        
+
+
+    public:
+        newAi(int size){
+            srand(time(nullptr));
+            Table = new int **[size];
+            for(int i = 0; i < size; i++){
+                Table[i] = new int *[size];
+                for(int j = 0; j < size; j++){
+                    Table[i][j] = new int[2];
+                    Table[i][j][0] = rand();
+                    Table[i][j][1] = rand();
+                }
+            }
+            
+        }
+
+        void iterative_negamax(bool player, Field & f,int depth, int &px, int &py) {
+            int i = 2;
+            int bestscore;
+            while (i != depth + 2) {
+                MaximumDepth = i;
+                std::array<int, 4> restric = Get_restrictions(f);
+                bestscore = negamax(f, player, MaximumDepth, -10000000, 10000000, hash(f),restric, 0, 0);
+                i += 2;
+            }
+            px = bestmove.i;
+            py = bestmove.j;
+        }
+
+        void search(Field & f,bool player,int depth,int & newbestx, int & newbesty) {
+            MaximumDepth = depth;
+            std::array<int, 4> restric = Get_restrictions(f);
+            int bestMove = negamax(f, player, depth, -1000000, 1000000, hash(f), restric, 0, 0);
+            newbestx = bestmove.i;
+            newbesty = bestmove.j;
+            std::cout << "LOG" << std::endl;
+            std::cout << "CacheHits " << CacheHits << std::endl;
+            std::cout << "CacheCutoffs " << CacheCutoffs << std::endl;
+            std::cout <<"CachePuts " << CachePuts << std::endl;
+            std::cout << "StateCacheHits " << StateCacheHits << std::endl;
+            std::cout << "StateCachePuts " << StateCachePuts << std::endl;
+            std::cout << "fc " << fc << std::endl;
+
+}
 
 };
 
