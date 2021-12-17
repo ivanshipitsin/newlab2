@@ -12,9 +12,8 @@ class Menu{
         sf::Font font;
         sf::Text text1, text2, maintext;
         sf::Vector2u sizewind;
-        newAi aiplayer;
     public:
-        Menu(unsigned int _w, unsigned int _h) : mainwind(sf::VideoMode(_w , _h), "Tik-tok"), sizewind(_w,_h), aiplayer(15){
+        Menu(unsigned int _w, unsigned int _h) : mainwind(sf::VideoMode(_w , _h), "Tik-tok"), sizewind(_w,_h){
             mainwind.setSize(sizewind);
 
             button1.setSize(sf::Vector2f(_w / 2, _h / 3 - 30));
@@ -104,7 +103,7 @@ class Menu{
                                     GameAI g(800);
                                     int p = g.Init();
                                     if(!p)
-                                        g.start1(aiplayer);
+                                        g.start1();
                                 }
                                 break;
                         }

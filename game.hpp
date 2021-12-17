@@ -180,8 +180,11 @@ class GamePvP {
                             if(playsh && f.Get(x/step - 1, y/step - 1) == ' ' && !gameover){
                                 f.Set(x/step - 1, y/step - 1, 'O');
                                 sf::CircleShape  answ(step/2.f - 4.f) ;
-                                answ.setFillColor(sf::Color(100, 250, 50));
+                                answ.setFillColor(sf::Color(205, 74, 76));
                                 answ.setPosition((x/step)*step + 3, (y/step)*step + 3);
+                                if(circls.size() > 0)
+                                    circls[circls.size() - 1].setFillColor(sf::Color(100, 250, 50));
+                                circls.push_back(answ);
                                 circls.push_back(answ);
                                 playsh = false;
                                 tik.play();
@@ -211,8 +214,10 @@ class GamePvP {
                             }else if(!playsh && f.Get(x/step - 1, y/step - 1 ) == ' ' && !gameover){
                                 f.Set(x/step - 1, y/step - 1, 'X');
                                 sf::CircleShape  answ(step/2.f, 3);
-                                answ.setFillColor(sf::Color(0, 100, 50));
+                                answ.setFillColor(sf::Color(213, 38, 91));
                                 answ.setPosition((x/step)*step , (y/step)*step + 5);
+                                if(tringls.size() > 0)
+                                    tringls[tringls.size() - 1].setFillColor(sf::Color(0, 100, 50));
                                 tringls.push_back(answ);
                                 playsh = true;
                                 tok.play();
@@ -283,63 +288,63 @@ class GameAI {
         bool playsh;
         bool gameover;
         int win;
+        newAi aiplayer;
     public:
-        GameAI(unsigned int _l, int count = 15) : window(sf::VideoMode(_l, _l), "Tik-tok"), vm(_l,_l), f(count), 
+        GameAI(unsigned int _l, int count = 15) : window(sf::VideoMode(_l, _l), "Tik-tok"), vm(_l, _l), f(count), 
                                                     playline(sf::Lines, (count + 1) * 2), playlinev(sf::Lines, (count + 1) * 2), 
-                                                    line(sf::Vector2f(0.f,0.f)) {
+                                                    line(sf::Vector2f(0.f, 0.f)), aiplayer(15) {
             step = _l / (count + 2);
             playsh = true;
             gameover = false;
             win = 0;
 
-            for(int i = 0; i < count + 1; i++){
-                playline[2*i].position = sf::Vector2f(step, step + i*step);
-                playline[2*i].color = sf::Color::Black;
-                playline[2*i + 1].position = sf::Vector2f(_l - step, step + i * step);
-                playline[2*i + 1].color = sf::Color::Black;
+            for(int i = 0; i < count + 1; i++) {
+                playline[2 * i].position = sf::Vector2f(step, step + i * step);
+                playline[2 * i].color = sf::Color::Black;
+                playline[2 * i + 1].position = sf::Vector2f(_l - step, step + i * step);
+                playline[2 * i + 1].color = sf::Color::Black;
             }
 
-            for(int i = 0; i < count + 1; i++){
-                playlinev[2*i].position = sf::Vector2f(step + i*step, step);
-                playlinev[2*i].color = sf::Color::Black;
-                playlinev[2*i + 1].position = sf::Vector2f(step+ i *step, _l - step);
-                playlinev[2*i + 1].color = sf::Color::Black;
+            for(int i = 0; i < count + 1; i++) {
+                playlinev[2 * i].position = sf::Vector2f(step + i * step, step);
+                playlinev[2 * i].color = sf::Color::Black;
+                playlinev[2 * i + 1].position = sf::Vector2f(step+ i * step, _l - step);
+                playlinev[2 * i + 1].color = sf::Color::Black;
             }
 
             line.setFillColor(sf::Color::Red);
         }
         int Init(){
-            if (!bufftik.loadFromFile("sound/tik.wav")){
+            if (!bufftik.loadFromFile("sound/tik.wav")) {
                 std::cerr << "ERROR LOAD SOUND TIK" << std::endl;
                 return -1;
             }
             
-            if (!bufftok.loadFromFile("sound/tok.wav")){
+            if (!bufftok.loadFromFile("sound/tok.wav")) {
                 std::cerr << "ERROR LOAD SOUND TOK" << std::endl;
                 return -1;
             }
             return 0;
         }
 
-        void start1(newAi & aiplayer){
+        void start1() {
             sf::Sound tik;
             tik.setBuffer(bufftik);
 
             sf::Sound tok;
             tok.setBuffer(bufftok);
 
-            while (window.isOpen())
-            {
+            while (window.isOpen()) {
 
                 sf::Event event;
-                while (window.pollEvent(event))
-                {
+                while (window.pollEvent(event)) {
+
                     switch(event.type) {
-                        case sf::Event::Closed:{
+                        case sf::Event::Closed: {
                             window.close();
                             break;
                         }
-                        case sf::Event::MouseButtonPressed:{
+                        case sf::Event::MouseButtonPressed: {
                             int x = event.mouseButton.x;
                             int y = event.mouseButton.y;
                             if(x < step || x > vm.width - step){
@@ -348,45 +353,51 @@ class GameAI {
                             if(y < step || y > vm.height - step){
                                 break;
                             }
-                            if(playsh && f.Get(x/step - 1, y/step - 1) == ' ' && !gameover){
-                                f.Set(x/step - 1, y/step - 1, 'O');
-                                sf::CircleShape  answ(step/2.f - 4.f) ;
-                                answ.setFillColor(sf::Color(100, 250, 50));
-                                answ.setPosition((x/step)*step + 3, (y/step)*step + 3);
+                            if(playsh && f.Get(x / step - 1, y / step - 1) == ' ' && !gameover) {
+                                f.Set(x / step - 1, y / step - 1, 'O');
+
+                                sf::CircleShape  answ(step / 2.f - 4.f) ;
+                                answ.setFillColor(sf::Color(205, 74, 76));
+                                answ.setPosition(x - x % step + 3, y - y % step + 3);
+
+                                if(circls.size() > 0)
+                                    circls[circls.size() - 1].setFillColor(sf::Color(100, 250, 50));
+
                                 circls.push_back(answ);
                                 playsh = false;
-                                //tik.play();
+                                
                                 win = checkwin(f, start, end);
-                                if(win){
+                                if( win ) {
                                     gameover = true;
-                                    /*std::cout << start.x << " " << start.y << " START\n";
-                                    std::cout << end.x << " " << end.y << " END\n";*/
 
-                                    if(start.y == end.y){
-                                        line.setSize(sf::Vector2f(step*5, 5.f));
-                                        line.setPosition(sf::Vector2f((start.x < end.x ? (start.x + 1) * step  : (end.x + 1) * step ), (start.y + 1) * step + step/2.f));
+                                    if(start.y == end.y) {
+                                        line.setSize(sf::Vector2f(step * 5, 5.f));
+                                        line.setPosition(sf::Vector2f((start.x < end.x ? (start.x + 1) * step  : (end.x + 1) * step ), (start.y + 1) * step + step / 2.f));
                                     }
-                                    else if(start.x == end.x){
-                                        line.setSize(sf::Vector2f( 5.f, step*5));
-                                        line.setPosition(sf::Vector2f((start.x + 1)* step + step/2.f,(start.y < end.y ? (start.y + 1)* step : (end.y + 1)* step)));
-                                    } else if ((start.y > end.y && (start.x < end.x)) || (start.y < end.y && start.x > end.x)) {
-                                        line.setSize(sf::Vector2f(step*5*1.4142f, 5.f));
+                                    else if(start.x == end.x) {
+                                        line.setSize(sf::Vector2f( 5.f, step * 5));
+                                        line.setPosition(sf::Vector2f((start.x + 1) * step + step / 2.f, (start.y < end.y ? (start.y + 1) * step : (end.y + 1) * step)));
+                                    } else if ((start.y > end.y && start.x < end.x) || (start.y < end.y && start.x > end.x)) {
+                                        line.setSize(sf::Vector2f(step * 5 * 1.4142f, 5.f));
                                         line.rotate(135.f);
-                                        line.setPosition(sf::Vector2f( (end.x + 2) * step,(end.y+1)* step));
-                                    } else{
-                                        line.setSize(sf::Vector2f(step*5*1.4142f, 5.f));
+                                        line.setPosition(sf::Vector2f((end.x + 2) * step, (end.y + 1) * step));
+                                    } else {
+                                        line.setSize(sf::Vector2f(step * 5 * 1.4142f, 5.f));
                                         line.rotate(45.f);
-                                        line.setPosition(sf::Vector2f((start.x < end.x ? (start.x+1)* step : (end.x+1)* step),(start.y < end.y ? (start.y+1)* step : (end.y+1)* step)));
+                                        line.setPosition(sf::Vector2f((start.x < end.x ? (start.x + 1) * step : (end.x + 1) * step), (start.y < end.y ? (start.y + 1) * step : (end.y + 1) * step)));
                                     }
                                 }
                             }
-                            if(!playsh && !gameover){
-                                int px = 0, py = 0;
-                                aiplayer.iterative_negamax(true, f ,6, px , py);
+                            if(!playsh && !gameover) {
+                                int px = -1, py = -1;
+                                int d = 6;
+                                aiplayer.iterative_negamax(true, f ,d, px , py);
                                 f.Set(px, py, 'X');
                                 sf::CircleShape  answ(step/2.f, 3);
-                                answ.setFillColor(sf::Color(0, 100, 50));
+                                answ.setFillColor(sf::Color(213, 38, 91));
                                 answ.setPosition((px + 1)*step , (py + 1)*step + 5);
+                                if(tringls.size() > 0)
+                                    tringls[tringls.size() - 1].setFillColor(sf::Color(0, 100, 50));
                                 tringls.push_back(answ);
                                 playsh = true;
                                 //tok.play();

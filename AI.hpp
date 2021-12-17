@@ -10,6 +10,7 @@
 #include <utility>
 #include <algorithm>
 #include <tuple>
+#include <random>
 
 class Field{
     public:
@@ -819,6 +820,7 @@ class newAi{
         int StateCachePuts;
         int MaximumDepth;
         int fc;
+        const int WIN_DETECTED = std::numeric_limits<int>::min() + 1;
 
         Move bestmove;
 
@@ -868,7 +870,7 @@ class newAi{
                         move.i = i;
                         move.j = j;
                         move.score = calcscore(f, i, j, player);
-                        if (move.score >= 100000) {
+                        if (move.score == WIN_DETECTED) {
                             std::vector<Move> winning_move = { move };
                                 return winning_move;
                             }
@@ -884,12 +886,6 @@ class newAi{
 
         int calcscore(Field & f, int x, int y, bool player){
             int len = f.GetLen();
-
-            /*if(player){
-                f.Set(i,j, 'X');
-            }else{
-                f.Set(i,j, 'O');
-            }*/
             int score = 0;
             int tempscore = 0;
             std::string ans1;
@@ -902,9 +898,9 @@ class newAi{
                 }
                 ans1.push_back(f.Get(x - 4 + p, y - 4 + p));
             }
-            tempscore = calcstr(ans1);
-            if(tempscore == 100000){
-                return 100000;
+            tempscore = calcstr(ans1, player);
+            if(tempscore == WIN_DETECTED){
+                return WIN_DETECTED;
             }else{
                 score += tempscore;
             }
@@ -916,9 +912,9 @@ class newAi{
                 }
                 ans2.push_back(f.Get(x - 4 + p, y));
             }
-            tempscore = calcstr(ans2);
-            if(tempscore == 100000){
-                return 100000;
+            tempscore = calcstr(ans2, player);
+            if(tempscore == WIN_DETECTED){
+                return WIN_DETECTED;
             }else{
                 score += tempscore;
             }
@@ -930,9 +926,9 @@ class newAi{
                 }
                 ans3.push_back(f.Get(x, y - 4 + p));
             }
-            tempscore = calcstr(ans3);
-            if(tempscore == 100000){
-                return 100000;
+            tempscore = calcstr(ans3, player);
+            if(tempscore == WIN_DETECTED){
+                return WIN_DETECTED;
             }else{
                 score += tempscore;
             }
@@ -947,18 +943,17 @@ class newAi{
                 }
                 ans4.push_back(f.Get(x - 4 + p, y + 4 - p));
             }
-            tempscore = calcstr(ans4);
-            if(tempscore == 100000){
-                return 100000;
+            tempscore = calcstr(ans4, player);
+            if(tempscore == WIN_DETECTED){
+                return WIN_DETECTED;
             }else{
                 score += tempscore;
             }
 
-            //f.Set(i,j, ' ');
             return score;
         }
 
-        int calcstr(std::string str){
+        int calcstr(std::string str, bool player){
             int score = 0;
             for(int i = 0; (i + 4) < str.size(); ++i){
                 int countX = 0;
@@ -970,10 +965,16 @@ class newAi{
                     if(str[i + j] == 'O'){
                         countO++;
                     }
+                    
                 }
-                int tempscore = evalff(getState(countX,countO));
-                if(tempscore == 100000){
-                    return 100000;
+
+                if(player){
+                    score += evalff(getState(countX,countO));
+                } else {
+                    score += evalff(getState(countO,countX));
+                }
+                if(score >= 800000){
+                    return WIN_DETECTED;
                 }
             }
             return score;
@@ -1244,7 +1245,7 @@ class newAi{
             int black_score = eval_board(f, 'X', restric);
             int  white_score = eval_board(f, 'O', restric);
             int score = 0;
-            if (!player) {
+            if (player) {
                 score = (black_score - white_score);
             } else {
                 score = (white_score - black_score);
@@ -1357,26 +1358,30 @@ class newAi{
 
     public:
         newAi(int size){
+            std::mt19937 mt_rand(time(0));
             srand(time(nullptr));
             Table = new int **[size];
             for(int i = 0; i < size; i++){
                 Table[i] = new int *[size];
                 for(int j = 0; j < size; j++){
                     Table[i][j] = new int[2];
-                    Table[i][j][0] = rand();
-                    Table[i][j][1] = rand();
+                    Table[i][j][0] = mt_rand();
+                    Table[i][j][1] = mt_rand();
                 }
             }
             
         }
 
         void iterative_negamax(bool player, Field & f,int depth, int &px, int &py) {
+            bestmove.i = -1;
+            bestmove.j = -1;
+            bestmove.score = 0;
             int i = 2;
             int bestscore;
             while (i != depth + 2) {
                 MaximumDepth = i;
                 std::array<int, 4> restric = Get_restrictions(f);
-                bestscore = negamax(f, player, MaximumDepth, -10000000, 10000000, hash(f),restric, 0, 0);
+                bestscore = negamax(f, player, MaximumDepth, std::numeric_limits<int>::min()+1, std::numeric_limits<int>::max()-1, hash(f),restric, 0, 0);
                 i += 2;
             }
             px = bestmove.i;
