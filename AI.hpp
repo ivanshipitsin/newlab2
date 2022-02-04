@@ -41,7 +41,9 @@ class Field{
             return data.size();
         }
     private:
+    
         std::vector<std::vector<char> > data;
+    
 };
 
 int checkwinb(Field& f, int i, int j){
@@ -823,9 +825,6 @@ class newAi{
         const int WIN_DETECTED = std::numeric_limits<int>::min() + 1;
 
         Move bestmove;
-
-        
-
 
         int hash(Field & f){
             int l = f.GetLen();
